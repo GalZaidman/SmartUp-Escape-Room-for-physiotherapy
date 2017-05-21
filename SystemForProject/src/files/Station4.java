@@ -3,33 +3,35 @@ package files;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class Station4 {
-	
-	private String avgRTime;
-	private String totalTime;
+public class Station4 extends absStation{
+
 	private String score;
 	private String songChosen;
 	
 	public Station4(){
-		avgRTime="00:00 D";
-		totalTime="00:00 D";
+		super("00:00 D","00:00 D");
 		score="0D";
 		songChosen="blabla";
 	}
 	
 	public Station4(Scanner s){
-		totalTime=s.nextLine();
-		avgRTime=s.nextLine();
+		super(s.nextLine(),s.nextLine());
 		score=s.nextLine();
 		songChosen=s.nextLine();
 	}
+	
+	public Station4(String avgRTime,String totalTime,String score,String songChosen){
+		super(totalTime,avgRTime);
+		this.score=score;
+		this.songChosen=songChosen;
+	}
 
 	public String getAvgRTime() {
-		return avgRTime;
+		return avgTime;
 	}
 
 	public void setAvgRTime(String avgRTime) {
-		this.avgRTime = avgRTime;
+		this.avgTime = avgRTime;
 	}
 
 	public String getTotalTime() {
@@ -58,13 +60,13 @@ public class Station4 {
 
 	@Override
 	public String toString() {
-		return "Station4 [avgRTime=" + avgRTime + ", totalTime=" + totalTime + ", score=" + score + ", songChosen="
+		return "Station4 [avgRTime=" + avgTime + ", totalTime=" + totalTime + ", score=" + score + ", songChosen="
 				+ songChosen + "]";
 	}	
 	
 	public void saveToFile(PrintWriter pw){
 		pw.println(totalTime);
-		pw.println(avgRTime);
+		pw.println(avgTime);
 		pw.println(score);
 		pw.println(songChosen);
 	}	

@@ -3,28 +3,24 @@ package files;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class Station1 {
+public class Station1 extends absStation{
 	
 	public final int MAX_UNITS = 5;
-	private String avgTime;
-	private String totalRuningTime;
 	private String operationOrder;
 	
 	public Station1(){
-		avgTime="00:00 D";
-		totalRuningTime="00:00 D";
+		super("00:00 D","00:00 D");
 		operationOrder=null;
 	}
 	
 	public Station1(String avg,String totalTime,String operationOrder){
-		avgTime=avg;
-		totalRuningTime=totalTime;
+		super(totalTime,avg);
 		this.operationOrder=operationOrder;
 	}
 	
 	public Station1(Scanner s){
 		avgTime=s.nextLine();
-		totalRuningTime=s.nextLine();
+		totalTime=s.nextLine();
 		operationOrder=s.nextLine();
 	}
 
@@ -37,21 +33,21 @@ public class Station1 {
 	}
 
 	public String getTotalRuningTime() {
-		return totalRuningTime;
+		return totalTime;
 	}
 
 	public void setTotalRuningTime(String totalRuningTime) {
-		this.totalRuningTime = totalRuningTime;
+		this.totalTime = totalRuningTime;
 	}
 
 	@Override
 	public String toString() {
-		return "Station1: avgTime=" + avgTime + ", totalRuningTime=" + totalRuningTime;
+		return "Station1: avgTime=" + avgTime + ", totalRuningTime=" + totalTime;
 	}
 	
 	public void saveToFile(PrintWriter pw){
 		pw.println(avgTime);
-		pw.println(totalRuningTime);
+		pw.println(totalTime);
 		pw.println(operationOrder);
 	}
 }

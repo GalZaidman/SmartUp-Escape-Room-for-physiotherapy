@@ -3,7 +3,11 @@ package files;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
+
+import com.sun.jmx.remote.internal.ArrayQueue;
 
 public class Trainee implements Comparable<Trainee>{
 	
@@ -12,6 +16,7 @@ public class Trainee implements Comparable<Trainee>{
 	private String lastName;
 	private String id;
 	private int numOfMeetings;
+	private Queue<Meeting> meetingQueue; 
 	private Meeting[] meetingArr;
 	
 	public Trainee() {
@@ -82,14 +87,26 @@ public class Trainee implements Comparable<Trainee>{
 	}
 
 	public void addMeeting(Meeting m){
-		Meeting temp1=meetingArr[0];
-		for(int i=1 ; i<meetingArr.length ; i++){
-			Meeting temp2=meetingArr[i];
-			meetingArr[i]=temp1;
-			temp1=temp2;
-		}
-		if(numOfMeetings<10){
+		if(numOfMeetings==0){
+			meetingArr[0]=m;
 			numOfMeetings++;
+		}else if(numOfMeetings<10){
+			Meeting temp1=meetingArr[0];
+			for(int i=1 ; i<=numOfMeetings ; i++){
+				Meeting temp2=meetingArr[i];
+				meetingArr[i]=temp1;
+				temp1=temp2;
+			}
+			numOfMeetings++;
+			meetingArr[0]=m;
+		}else{
+			Meeting temp1=meetingArr[0];
+			for(int i=1 ; i<numOfMeetings ; i++){
+				Meeting temp2=meetingArr[i];
+				meetingArr[i]=temp1;
+				temp1=temp2;
+			}
+			meetingArr[0]=m;
 		}
 	}
 	

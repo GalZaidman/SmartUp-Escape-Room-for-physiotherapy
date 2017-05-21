@@ -2,29 +2,30 @@ package files;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 import javax.swing.JOptionPane;
 
 import gui.SystemGUI;
 
-public class StationOneHeadThread implements Runnable{
+public class StationTwoHandThread implements Runnable {
 
-	private boolean run, dataRecived;
+	private String gameResultsStr;
 	private Meeting currentMeeting;
-	private String orderOfOperation;
-	private String results;
+	private Runtime rt;
 	private SystemGUI system;
+	private boolean run;
 
-	public StationOneHeadThread(Meeting m,String orderOfOperation, SystemGUI system) {
-		run =true;
-		results=null;
+	public StationTwoHandThread(Meeting m, SystemGUI system) {
 		currentMeeting=m;
 		this.system=system;
-		this.orderOfOperation=orderOfOperation;
+		run=true;
+		rt=Runtime.getRuntime();
 	}
 
 	@Override
@@ -37,22 +38,21 @@ public class StationOneHeadThread implements Runnable{
 			DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream()); 
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream())); 
 			
-			outToServer.writeChars(orderOfOperation+"\n");// writeBytes(orderOfOperation); 
+			outToServer.writeChars("1\n");
 			while(!inFromServer.ready()){
 			};
-			results = inFromServer.readLine(); 
+			gameResultsStr = inFromServer.readLine();
 			clientSocket.close();
-			String[] resultArr=results.split(":");
-			Station1 s1=new Station1(resultArr[0],resultArr[1],orderOfOperation);
-			currentMeeting.setS1(s1);
-			system.station1State(false);
+			String[] resultArr=gameResultsStr.split("B");
+			Station2 s2=new Station2(resultArr[1], resultArr[0], resultArr[2]);
+			currentMeeting.setS2(s2);
+			system.station2State(false,null);
+		} catch (java.net.ConnectException e) {
+			JOptionPane.showMessageDialog(null, "connection is refused");
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-
-
 	}
-
 }

@@ -87,7 +87,7 @@ public class Meeting {
 	}
 
 	public boolean equalsByHeader(String header) {
-		return d.equals(header);
+		return d.toString().equals(header);
 	}
 
 	public void saveToFile(PrintWriter pw){

@@ -23,7 +23,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextPane;
 import javax.swing.border.EtchedBorder;
 
-import files.GameThread;
+import files.StationTwoHandThread;
 import files.Inventory;
 import files.Meeting;
 import files.SerialTest2;
@@ -50,13 +50,12 @@ public class SystemGUI extends JFrame {
 	private JCheckBox chckbxHead ,chckbxHand,chckbxArm,chckbxFootlegs,cbxSoundStation1,cbxSoundStation3,chbxSoundS1,chbxSound3;
 	private CardLayout cLayout;
 	private Vector<JComboBox> comboBoxToUpdate, meetingComboBoxToUpdate;
-	
+
 	private static Inventory inventory;
-	private static SerialTest2 arduino;
 	private static SystemGUI frame;
 	private Thread s1Thread,s2Thread,s3Thread,s4Thread;
-	private boolean station1Selected,station2Selected,station3Selected,station4Selected,station2Fin,isInit;
-	
+	private boolean station1Selected,station2Selected,station3Selected,station4Selected,station2Fin,isInitTrinee,isInitMeeting;
+	private Trainee currentTrineeS1,currentTrineeS2,currentTrineeS3,currentTrineeS4;
 	//s1
 	private String s1OperationOrder;
 	private boolean s1Sound;
@@ -64,28 +63,19 @@ public class SystemGUI extends JFrame {
 	private boolean s3Sound;
 	private int s3LanePicked;
 
-	private String gameForStationTwoAdress;
-
 	private JSeparator separator_3,separator_4,separator_5,separator_6;
 
-	/**
-	 * Launch the application.
-	 */
+
 	public static void main(String[] args) {
-		//arduino=new SerialTest2();
-		///arduino.initialize();
 		inventory=new Inventory();
-		SystemGUI frame = new SystemGUI();
+		frame = new SystemGUI();
 		frame.setVisible(true);
 	}
 
-	/**
-	 * Create the frame.
-	 */
 	public SystemGUI() {
-		gameForStationTwoAdress="Game/" ;
-		station2Fin=false;
-		isInit=false;
+
+		isInitMeeting=false;
+		isInitTrinee=false;
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 587, 429);
@@ -715,8 +705,8 @@ public class SystemGUI extends JFrame {
 		station2PnlActionLisinors();
 		station3PnlActionLisinors();
 		station4PnlActionLisinors();
-		
-		
+
+
 		//pnl start practice
 		cbxTrainee.setEnabled(false);
 		btnHistory.setEnabled(false);
@@ -734,7 +724,7 @@ public class SystemGUI extends JFrame {
 		cbxStation3.setEnabled(false);
 		txtOrderOfOperation.setEnabled(false);
 		btnStart.setEnabled(false);	
-		
+
 		//pnl add
 		btnRemove.setEnabled(false);
 		btnHistoryAdd.setEnabled(false);
@@ -759,9 +749,9 @@ public class SystemGUI extends JFrame {
 		btnHistoryS4.setEnabled(false);
 		btnStartSs4.setEnabled(false);
 		cbxPracticeS4.setEnabled(false);
-		
 
-		
+
+
 		comboBoxToUpdate=new Vector<>();
 		comboBoxToUpdate.add(cbxTrainee);
 		comboBoxToUpdate.add(cbxTrineeSearch);
@@ -770,7 +760,7 @@ public class SystemGUI extends JFrame {
 		comboBoxToUpdate.add(cbxTrineeS2);
 		comboBoxToUpdate.add(cbxTrineeS3);
 		comboBoxToUpdate.add(cbxTrineeS4);
-		
+
 		meetingComboBoxToUpdate=new Vector<>();
 		meetingComboBoxToUpdate.add(cbxPracticeS1);
 		meetingComboBoxToUpdate.add(cbxPracticeS2);
@@ -793,41 +783,50 @@ public class SystemGUI extends JFrame {
 
 
 	public void initTraineeList(Inventory inventory){
-		isInit=true;
+		isInitTrinee=true;
 		for(JComboBox<Object> c : comboBoxToUpdate){
+			isInitTrinee=true;
 			c.removeAllItems();
 		}
 		TreeSet<Trainee> ts=inventory.getTraineeList();
 		int i=1;
 		for(Trainee t: ts ){
+			isInitTrinee=true;
 			for(JComboBox<Object> c : comboBoxToUpdate){
 				c.addItem((i)+")."+t.getId()+" "+t.getFirstName()+" "+t.getLastName());
 			}
 			i++;
 		}
 		for(JComboBox<Object> c : comboBoxToUpdate){
+			isInitTrinee=true;
 			c.setSelectedIndex(-1);
 		}
-		isInit=false;
+		isInitTrinee=false;
 	}
-	
+
 	public void initMeetingList(Inventory inventory,Trainee t){
-		isInit=true;
+		if(t==null){
+			return;
+		}
+		isInitMeeting=true;
 		for(JComboBox<Object> c : meetingComboBoxToUpdate){
+			isInitMeeting=true;
 			c.removeAllItems();
 		}
 		Meeting[] meetingArr=t.getMeetingArr();
 		int numOfmeetings=t.getNumOfMeetings();
-		for(int i=1 ; i<=numOfmeetings ;i++){
+		for(int i=0 ; i<numOfmeetings ;i++){
 			for(JComboBox<Object> c : meetingComboBoxToUpdate){
-				c.addItem((i)+")."+meetingArr[i].meetingHeader());
+				isInitMeeting=true;
+				c.addItem((i+1)+") "+meetingArr[i].meetingHeader());
 			}
 		}
 		for(JComboBox<Object> c : meetingComboBoxToUpdate){
 			c.addItem("New Meeting");
+			isInitMeeting=true;
 			c.setSelectedIndex(-1);
 		}
-		isInit=false;
+		isInitMeeting=false;
 	}
 
 	public void setResultsForGame(String results, Meeting currentMeeting){
@@ -878,8 +877,6 @@ public class SystemGUI extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				cLayout.show(pnlAction, "3");
 				initTraineeList(inventory);
-				//update();
-				//resetIsOnLoad();
 			}
 		});
 		//switch to input a s1
@@ -1110,13 +1107,13 @@ public class SystemGUI extends JFrame {
 					sb.append(999);
 				}
 				if(station2Selected){
-				//	startStation2();
+					//	startStation2();
 				}else{
 					station2Fin=true;
 				}
 
 				if(station4Selected){
-				//	startStation4();
+					//	startStation4();
 				}else{
 
 				}
@@ -1149,7 +1146,7 @@ public class SystemGUI extends JFrame {
 		cbxTrineeSearch.addActionListener(new ActionListener() {		
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if(!isInit){
+				if(isInitMeeting==false&&isInitTrinee==false){
 					textTrineeSearch.setText(inventory.findTrinee(getId((String)cbxTrineeSearch.getSelectedItem())).toString());
 				}
 			}
@@ -1241,7 +1238,7 @@ public class SystemGUI extends JFrame {
 				setTextInStation1(btn5S1, txtOrderOfOpS1, "-5");
 			}
 		});
-		
+
 		cbxPickTraineeS1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1253,14 +1250,15 @@ public class SystemGUI extends JFrame {
 					cbxPracticeS1.setEnabled(false);
 					btnStartSs1.setEnabled(false);
 				}else{
+					currentTrineeS1=inventory.findTrinee(getId((String)cbxPickTraineeS1.getSelectedItem()));
 					btnHistoryS1.setEnabled(true);
 					cbxPracticeS1.setEnabled(true);
-					if(!isInit)
-						initMeetingList(inventory,inventory.findTrinee(getId((String)cbxPickTraineeS1.getSelectedItem())));
+					if(isInitMeeting==false&&isInitTrinee==false)
+						initMeetingList(inventory,currentTrineeS1);
 				}
 			}
 		});
-		
+
 		cbxPracticeS1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(cbxPracticeS1.getSelectedIndex()==-1){
@@ -1272,9 +1270,16 @@ public class SystemGUI extends JFrame {
 					btn1S1.setEnabled(true);btn2S1.setEnabled(true);btn3S1.setEnabled(true);btn4S1.setEnabled(true);btn5S1.setEnabled(true);
 					chbxSoundS1.setEnabled(true);
 					txtOrderOfOpS1.setEnabled(true);
-					cbxPracticeS1.setEnabled(true);
 					btnStartSs1.setEnabled(true);
 				}
+			}
+		});
+
+		btnHistoryS1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				textTrineeSearch.setText(currentTrineeS1.toString());
+				btnSearch.doClick();
 			}
 		});
 
@@ -1293,13 +1298,13 @@ public class SystemGUI extends JFrame {
 		btnStartSs1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Trainee currentTrinee=inventory.findTrinee(getId((String)cbxPickTraineeS1.getSelectedItem()));
 				Meeting currentMeeting=null;
-				String meetingSelected=((String)cbxPracticeS1.getSelectedItem()).substring(2).replaceAll("\\)","");
-				if(meetingSelected.equals("w Meeting")){
+				String meetingSelected=((String)cbxPracticeS1.getSelectedItem()).substring(3).replaceAll("\\)","");
+				if(meetingSelected.equals(" Meeting")){
 					currentMeeting=new Meeting();
+					currentTrineeS1.addMeeting(currentMeeting);
 				}else{
-					currentMeeting=inventory.findMeetingInTrinee(currentTrinee, meetingSelected);
+					currentMeeting=inventory.findMeetingInTrinee(currentTrineeS1, meetingSelected);
 				}
 				if(currentMeeting==null){
 					JOptionPane.showMessageDialog(null, "EROR: try new trinee");
@@ -1325,6 +1330,61 @@ public class SystemGUI extends JFrame {
 
 	public void station2PnlActionLisinors(){
 
+		cbxTrineeS2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(cbxTrineeS2.getSelectedIndex()==-1){
+					btnHistoryS2.setEnabled(false);
+					cbxPracticeS2.setEnabled(false);
+					btnStartSs2.setEnabled(false);
+				}else{
+					currentTrineeS2=inventory.findTrinee(getId((String)cbxTrineeS2.getSelectedItem()));
+					btnHistoryS2.setEnabled(true);
+					cbxPracticeS2.setEnabled(true);
+					if(isInitMeeting==false&&isInitTrinee==false)
+						initMeetingList(inventory,currentTrineeS2);
+				}
+			}
+		});
+
+		cbxPracticeS2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(cbxPracticeS2.getSelectedIndex()==-1){
+					btnStartSs2.setEnabled(false);
+				}else{
+					btnStartSs2.setEnabled(true);
+				}
+			}
+		});
+
+		btnHistoryS2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				textTrineeSearch.setText(currentTrineeS2.toString());
+				btnSearch.doClick();
+			}
+		});
+
+		btnStartSs2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Meeting currentMeeting=null;
+				String meetingSelected=((String)cbxPracticeS2.getSelectedItem()).substring(3).replaceAll("\\)","");
+				if(meetingSelected.equals(" Meeting")){
+					currentMeeting=new Meeting();
+					currentTrineeS2.addMeeting(currentMeeting);
+				}else{
+					currentMeeting=inventory.findMeetingInTrinee(currentTrineeS2, meetingSelected);
+				}
+				if(currentMeeting==null){
+					JOptionPane.showMessageDialog(null, "EROR: try new trinee");
+					return;
+				}
+				s2Thread=new Thread(new StationTwoHandThread(currentMeeting, frame));
+				s2Thread.start();
+				station2State(true,currentTrineeS2);
+			}
+		});
 	}
 
 	public void station3PnlActionLisinors(){
@@ -1332,9 +1392,63 @@ public class SystemGUI extends JFrame {
 	}
 
 	public void station4PnlActionLisinors(){
+		cbxTrineeS4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(cbxTrineeS4.getSelectedIndex()==-1){
+					btnHistoryS4.setEnabled(false);
+					cbxPracticeS4.setEnabled(false);
+					btnStartSs4.setEnabled(false);
+				}else{
+					currentTrineeS4=inventory.findTrinee(getId((String)cbxTrineeS4.getSelectedItem()));
+					btnHistoryS4.setEnabled(true);
+					cbxPracticeS4.setEnabled(true);
+					if(isInitMeeting==false&&isInitTrinee==false)
+						initMeetingList(inventory,currentTrineeS4);
+				}
+			}
+		});
 
+		cbxPracticeS4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(cbxPracticeS4.getSelectedIndex()==-1){
+					btnStartSs4.setEnabled(false);
+				}else{
+					btnStartSs4.setEnabled(true);
+				}
+			}
+		});
+
+		btnHistoryS4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				textTrineeSearch.setText(currentTrineeS4.toString());
+				btnSearch.doClick();
+			}
+		});
+
+		btnStartSs4.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Meeting currentMeeting=null;
+				String meetingSelected=((String)cbxPracticeS4.getSelectedItem()).substring(3).replaceAll("\\)","");
+				if(meetingSelected.equals(" Meeting")){
+					currentMeeting=new Meeting();
+					currentTrineeS4.addMeeting(currentMeeting);
+				}else{
+					currentMeeting=inventory.findMeetingInTrinee(currentTrineeS4, meetingSelected);
+				}
+				if(currentMeeting==null){
+					JOptionPane.showMessageDialog(null, "EROR: try new trinee");
+					return;
+				}
+				s4Thread=new Thread(new StationTwoHandThread(currentMeeting, frame));
+				s4Thread.start();
+				station4State(true,currentTrineeS4);
+			}
+		});
 	}
-	
+
 	public void station1State(boolean isRunning){
 		if(isRunning){
 			btnStartS1.setText("Station 1 is running");
@@ -1343,5 +1457,35 @@ public class SystemGUI extends JFrame {
 			btnStartS1.setText("Start Station 1");
 			btnStartS1.setEnabled(true);
 		}
+	}
+
+	public void station2State(boolean isRunning,Trainee t){
+		if(isRunning){
+			btnStartS2.setText("Station 2 is running");
+			btnHistoryS2.setEnabled(false);
+			cbxPracticeS2.setEnabled(false);
+			btnStartSs2.setEnabled(false);
+		}else{
+			btnStartS2.setText("Start Station 2");
+			initMeetingList(inventory,t);
+			btnHistoryS2.setEnabled(true);
+			cbxPracticeS2.setEnabled(true);
+			btnStartSs2.setEnabled(true);
+		}		
+	}
+	
+	public void station4State(boolean isRunning,Trainee t){
+		if(isRunning){
+			btnStartS4.setText("Station 2 is running");
+			btnHistoryS4.setEnabled(false);
+			cbxPracticeS4.setEnabled(false);
+			btnStartSs4.setEnabled(false);
+		}else{
+			btnStartS4.setText("Start Station 2");
+			initMeetingList(inventory,t);
+			btnHistoryS4.setEnabled(true);
+			cbxPracticeS4.setEnabled(true);
+			btnStartSs4.setEnabled(true);
+		}		
 	}
 }

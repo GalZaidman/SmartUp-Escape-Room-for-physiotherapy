@@ -3,37 +3,31 @@ package files;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
-public class Station2 {
+public class Station2 extends absStation{
 	
-	private String avgRTime;
-	private String totalTime;
 	private String score;
 	
-	
 	public Station2() {
-		this.avgRTime ="00:00 D";
-		this.totalTime ="00:00 D";
+		super("00:00 D","00:00 D");
 		this.score ="00:00 D";
 	}
 	
 	public Station2(String avgRTime, String totalTime, String score) {
-		this.avgRTime = avgRTime;
-		this.totalTime = totalTime;
+		super(totalTime,avgRTime);
 		this.score = score;
 	}
 	
 	public Station2(Scanner s){
-		totalTime=s.nextLine();
-		avgRTime=s.nextLine();
+		super(s.nextLine(),s.nextLine());
 		score=s.nextLine();
 	}
 	
 	public String getAvgRTime() {
-		return avgRTime;
+		return avgTime;
 	}
 	
 	public void setAvgRTime(String avgRTime) {
-		this.avgRTime = avgRTime;
+		this.avgTime = avgRTime;
 	}
 	
 	public String getTotalTime() {
@@ -54,12 +48,12 @@ public class Station2 {
 
 	@Override
 	public String toString() {
-		return "Station2: Average reaction time=" + avgRTime + ", Total Time=" + totalTime + ", Score=" + score;
+		return "Station2: Average reaction time=" + avgTime + ", Total Time=" + totalTime + ", Score=" + score;
 	}
 	
 	public void saveToFile(PrintWriter pw){
 		pw.println(totalTime);
-		pw.println(avgRTime);
+		pw.println(avgTime);
 		pw.println(score);
 	}
 }
